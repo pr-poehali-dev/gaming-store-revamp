@@ -7,10 +7,29 @@ import { useApp } from '@/contexts/AppContext';
 import { useState } from 'react';
 
 export const CartSheet = ({ count }: { count: number }) => {
-  const { cart, removeFromCart, updateQuantity, clearCart, theme } = useApp();
+  const { cart, removeFromCart, updateQuantity, clearCart, theme, user, placeOrder } = useApp();
   const [open, setOpen] = useState(false);
+  const [orderLoading, setOrderLoading] = useState(false);
   
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  const handlePlaceOrder = async () => {
+    if (!user) {
+      alert('Войдите через Telegram для оформления заказа');
+      return;
+    }
+    
+    setOrderLoading(true);
+    try {
+      await placeOrder();
+      alert('Заказ успешно оформлен!');
+      setOpen(false);
+    } catch (error: any) {
+      alert(error.message || 'Ошибка при оформлении заказа');
+    } finally {
+      setOrderLoading(false);
+    }
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -136,9 +155,10 @@ export const CartSheet = ({ count }: { count: number }) => {
                 </div>
                 <Button 
                   className="w-full rounded-xl bg-gradient-to-r from-[#9b87f5] to-[#0EA5E9] hover:opacity-90 h-12"
-                  onClick={() => setOpen(false)}
+                  onClick={handlePlaceOrder}
+                  disabled={orderLoading || !user}
                 >
-                  Оформить заказ
+                  {orderLoading ? 'Оформляем...' : user ? 'Оформить заказ' : 'Войдите для заказа'}
                 </Button>
                 <Button
                   variant="ghost"

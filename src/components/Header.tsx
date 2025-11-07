@@ -9,22 +9,15 @@ import { CartSheet } from './CartSheet';
 import { NotificationsPopover } from './NotificationsPopover';
 
 export const Header = () => {
-  const { cart, theme, toggleTheme, user, setUser } = useApp();
+  const { cart, theme, toggleTheme, user, authenticateUser, notifications } = useApp();
   const [searchOpen, setSearchOpen] = useState(false);
   
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const unreadNotifications = 2;
+  const unreadNotifications = notifications.filter(n => !n.read).length;
 
   const handleTelegramAuth = () => {
-    setUser({
-      id: '1',
-      name: 'Игорь Петров',
-      username: '@igorpetrov',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Igor',
-      balance: 5420,
-      referralCode: 'IGOR2024',
-      referrals: 12
-    });
+    const randomTelegramId = Math.floor(Math.random() * 1000000000);
+    authenticateUser(randomTelegramId);
   };
 
   return (

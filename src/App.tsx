@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AppProvider, useApp } from '@/contexts/AppContext';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
@@ -7,7 +7,8 @@ import { ProfileSection } from '@/components/ProfileSection';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Icon from '@/components/ui/icon';
-import { products } from '@/data/products';
+import { api } from '@/services/api';
+import type { Product as ApiProduct } from '@/services/api';
 import { Toaster } from '@/components/ui/sonner';
 
 const categories = [
@@ -20,12 +21,29 @@ const categories = [
 
 function AppContent() {
   const { theme } = useApp();
+  const [products, setProducts] = useState<ApiProduct[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.body.className = theme === 'dark' 
       ? 'bg-[#0F1117] text-white' 
       : 'bg-gray-50 text-gray-900';
   }, [theme]);
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    try {
+      const data = await api.getProducts();
+      setProducts(data);
+    } catch (error) {
+      console.error('Failed to load products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -102,15 +120,23 @@ function AppContent() {
               </Button>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.slice(0, 8).map((product, index) => (
-                <div 
-                  key={product.id}
-                  style={{ animationDelay: `${index * 50}ms` }}
-                  className="animate-fade-in"
-                >
-                  <ProductCard product={product} />
+              {loading ? (
+                <div className="col-span-full text-center py-12">
+                  <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-600'}>
+                    Загрузка товаров...
+                  </p>
                 </div>
-              ))}
+              ) : (
+                products.slice(0, 12).map((product, index) => (
+                  <div 
+                    key={product.id}
+                    style={{ animationDelay: `${index * 50}ms` }}
+                    className="animate-fade-in"
+                  >
+                    <ProductCard product={product} />
+                  </div>
+                ))
+              )}
             </div>
           </section>
 

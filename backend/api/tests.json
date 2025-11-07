@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Get all products",
+      "method": "GET",
+      "path": "/?action=products",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Get products by category RPG",
+      "method": "GET",
+      "path": "/?action=products&category=RPG",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Create new user via Telegram auth",
+      "method": "POST",
+      "path": "/?action=auth",
+      "body": {
+        "telegram_id": 999888777,
+        "username": "testuser_unique",
+        "first_name": "Test",
+        "last_name": "User"
+      },
+      "expectedStatus": 201
+    }
+  ]
+}
